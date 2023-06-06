@@ -4,7 +4,7 @@ public class Percolation {
     private final int[][] closedOpenMatrix;
     private final int[][] wqfMappingIndexMatrix;
     private final int n;
-    private WeightedQuickUnionUF wqf;
+    private final WeightedQuickUnionUF wqf;
 
     // creates n-by-n grid, with all sites initially blocked
     public Percolation(int n) {
