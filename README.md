@@ -1,4 +1,4 @@
-Algorithms, Part I
+# Algorithms, Part I
 
 Personal implementations of algorithms and data structures studied on the course
 
