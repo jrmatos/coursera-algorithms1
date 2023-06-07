@@ -31,7 +31,11 @@ public class Percolation {
 
 
     // opens the site (row, col) if it is not open already
-    public void open(int row, int col) {
+    public void open(int _row, int _col) {
+        // By convention, the row and column indices are integers between 1 and n, where (1, 1) is the upper-left site
+        int row = _row - 1;
+        int col = _col -1;
+
         if (!areIndicesValid(row, col)) throw new IllegalArgumentException("Invalid index provided");
 
         System.out.println("Opening: " + printIndices(row, col));
@@ -91,13 +95,19 @@ public class Percolation {
 
 
     // is the site (row, col) open?
-    public boolean isOpen(int row, int col) {
+    public boolean isOpen(int _row, int _col) {
+        int row = _row - 1;
+        int col = _col -1;
+
         if (!areIndicesValid(row, col)) throw new IllegalArgumentException("Invalid index provided");
         return closedOpenMatrix[row][col] == 1;
     }
 
     // is the site (row, col) full (connected to top)?
-    public boolean isFull(int row, int col) {
+    public boolean isFull(int _row, int _col) {
+        int row = _row - 1;
+        int col = _col -1;
+
         if (!areIndicesValid(row, col)) throw new IllegalArgumentException("Invalid index provided");
 
 
@@ -129,12 +139,12 @@ public class Percolation {
         System.out.println("virtualBottomIndex " + virtualBottomIndex);
 
         // introduce virtual top site
-        for (int i = 1; i < n; i++) {
-            wqf.union(virtualTopIndex, wqfMappingIndexMatrix[1][i]);
+        for (int i = 0; i < n; i++) {
+            wqf.union(virtualTopIndex, wqfMappingIndexMatrix[0][i]);
         }
 
         // introduce virtual bottom site
-        for (int i = 1; i < n; i++) {
+        for (int i = 0; i < n; i++) {
             wqf.union(virtualBottomIndex, wqfMappingIndexMatrix[n - 1][i]);
         }
 
@@ -157,13 +167,16 @@ public class Percolation {
     public static void main(String[] args) {
         Percolation percolation = new Percolation(5);
 
-        percolation.open(0, 2);
-        percolation.open(1, 2);
         percolation.open(1, 1);
         percolation.open(2, 1);
         percolation.open(3, 1);
         percolation.open(4, 1);
-        percolation.open(0, 4);
+        percolation.open(4, 2);
+        percolation.open(4, 3);
+        percolation.open(4, 4);
+        percolation.open(4, 5);
+        percolation.open(5, 3);
+
 
         System.out.println("Percolates: " + percolation.percolates());
     }
