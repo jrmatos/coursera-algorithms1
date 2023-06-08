@@ -34,62 +34,64 @@ public class Percolation {
     public void open(int _row, int _col) {
         // By convention, the row and column indices are integers between 1 and n, where (1, 1) is the upper-left site
         int row = _row - 1;
-        int col = _col -1;
+        int col = _col - 1;
 
         if (!areIndicesValid(row, col)) throw new IllegalArgumentException("Invalid index provided");
 
-        System.out.println("Opening: " + printIndices(row, col));
+        debug("Opening: " + printIndices(row, col));
 
         if (closedOpenMatrix[row][col] == 0) { // if still closed
             // union with TOP, if valid in bounds and already open
             if (areIndicesValid(row - 1, col)) {
                 if (closedOpenMatrix[row - 1][col] == 1) {
-                    System.out.println("connecting to TOP: " + printIndices(row - 1, col));
+                    debug("connecting to TOP: " + printIndices(row - 1, col));
                     wqf.union(wqfMappingIndexMatrix[row][col], wqfMappingIndexMatrix[row - 1][col]);
                 } else {
-                    System.out.println("Could not connect to TOP because it's not open: " + printIndices(row - 1, col));
+                    debug("Could not connect to TOP because it's not open: " + printIndices(row - 1, col));
                 }
             } else {
-                System.out.println("Could not connect to TOP because indices are out of bounds: " + printIndices(row - 1, col));
+                debug("Could not connect to TOP because indices are out of bounds: " + printIndices(row - 1, col));
             }
 
             // union with RIGHT, if valid in bounds and already open
             if (areIndicesValid(row, col + 1)) {
                 if (closedOpenMatrix[row][col + 1] == 1) {
-                    System.out.println("connecting to RIGHT: " + printIndices(row, col + 1));
+                    debug("connecting to RIGHT: " + printIndices(row, col + 1));
                     wqf.union(wqfMappingIndexMatrix[row][col], wqfMappingIndexMatrix[row][col + 1]);
                 } else {
-                    System.out.println("Could not connect to RIGHT because it's not open: " + printIndices(row, col + 1));
+                    debug("Could not connect to RIGHT because it's not open: " + printIndices(row, col + 1));
                 }
             } else {
-                System.out.println("Could not connect to RIGHT because indices are out of bounds: " + printIndices(row, col + 1));
+                debug("Could not connect to RIGHT because indices are out of bounds: " + printIndices(row, col + 1));
             }
 
             // union with BOTTOM, if valid in bounds and already open
             if (areIndicesValid(row + 1, col)) {
                 if (closedOpenMatrix[row + 1][col] == 1) {
-                    System.out.println("connecting to BOTTOM: " + printIndices(row + 1, col));
+                    debug("connecting to BOTTOM: " + printIndices(row + 1, col));
                     wqf.union(wqfMappingIndexMatrix[row][col], wqfMappingIndexMatrix[row + 1][col]);
                 } else {
-                    System.out.println("Could not connect to BOTTOM because it's not open: " + printIndices(row + 1, col));
+                    debug("Could not connect to BOTTOM because it's not open: " + printIndices(row + 1, col));
                 }
             } else {
-                System.out.println("Could not connect to BOTTOM because indices are out of bounds: " + printIndices(row + 1, col));
+                debug("Could not connect to BOTTOM because indices are out of bounds: " + printIndices(row + 1, col));
             }
 
             // union with LEFT, if valid in bounds and already open
             if (areIndicesValid(row, col - 1)) {
                 if (closedOpenMatrix[row][col - 1] == 1) {
-                    System.out.println("connecting to LEFT: " + printIndices(row, col - 1));
+                    debug("connecting to LEFT: " + printIndices(row, col - 1));
                     wqf.union(wqfMappingIndexMatrix[row][col], wqfMappingIndexMatrix[row][col - 1]);
                 } else {
-                    System.out.println("Could not connect to LEFT because it's not open: " + printIndices(row, col - 1));
+                    debug("Could not connect to LEFT because it's not open: " + printIndices(row, col - 1));
                 }
             } else {
-                System.out.println("Could not connect to LEFT because indices are out of bounds: " + printIndices(row, col - 1));
+                debug("Could not connect to LEFT because indices are out of bounds: " + printIndices(row, col - 1));
             }
 
             closedOpenMatrix[row][col] = 1;
+        } else {
+            debug("Already opened");
         }
     }
 
@@ -97,25 +99,32 @@ public class Percolation {
     // is the site (row, col) open?
     public boolean isOpen(int _row, int _col) {
         int row = _row - 1;
-        int col = _col -1;
+        int col = _col - 1;
 
         if (!areIndicesValid(row, col)) throw new IllegalArgumentException("Invalid index provided");
+
         return closedOpenMatrix[row][col] == 1;
     }
 
     // is the site (row, col) full (connected to top)?
     public boolean isFull(int _row, int _col) {
         int row = _row - 1;
-        int col = _col -1;
+        int col = _col - 1;
 
         if (!areIndicesValid(row, col)) throw new IllegalArgumentException("Invalid index provided");
 
+        if (closedOpenMatrix[row][col] == 0) return false;
 
-        if (areIndicesValid(row - 1, col)) { // check top
-            return wqf.connected(wqfMappingIndexMatrix[row][col],wqfMappingIndexMatrix[row - 1][col]);
+        int virtualTopIndex = (n * n + 2) - 1;
+
+        // introduce virtual top site
+        for (int i = 0; i < n; i++) {
+            if (closedOpenMatrix[0][i] == 1) { // is open
+                wqf.union(virtualTopIndex, wqfMappingIndexMatrix[0][i]);
+            }
         }
 
-        return false;
+        return wqf.find(wqfMappingIndexMatrix[row][col]) == wqf.find(virtualTopIndex);
     }
 
     // returns the number of open sites
@@ -135,20 +144,26 @@ public class Percolation {
         int virtualTopIndex = (n * n + 2) - 1;
         int virtualBottomIndex = (n * n + 2) - 2;
 
-        System.out.println("virtualTopIndex " + virtualTopIndex);
-        System.out.println("virtualBottomIndex " + virtualBottomIndex);
+        debug("virtualTopIndex " + virtualTopIndex);
+        debug("virtualBottomIndex " + virtualBottomIndex);
+
+        if (numberOfOpenSites() == 0) return false;
 
         // introduce virtual top site
         for (int i = 0; i < n; i++) {
-            wqf.union(virtualTopIndex, wqfMappingIndexMatrix[0][i]);
+            if (closedOpenMatrix[0][i] == 1) { // is open
+                wqf.union(virtualTopIndex, wqfMappingIndexMatrix[0][i]);
+            }
         }
 
         // introduce virtual bottom site
         for (int i = 0; i < n; i++) {
-            wqf.union(virtualBottomIndex, wqfMappingIndexMatrix[n - 1][i]);
+            if (closedOpenMatrix[n-1][i] == 1) { // is open
+                wqf.union(virtualBottomIndex, wqfMappingIndexMatrix[n - 1][i]);
+            }
         }
 
-        return wqf.connected(virtualTopIndex, virtualBottomIndex);
+        return wqf.find(virtualTopIndex) == wqf.find(virtualBottomIndex);
     }
 
     private boolean isIndexValid(int index) {
@@ -163,21 +178,20 @@ public class Percolation {
         return "(" + row + "," + col + ")";
     }
 
+    private void debug(String str) {
+        boolean VERBOSE = false;
+        if (VERBOSE) {
+            System.out.println(str);
+        }
+    }
+
+
     // test client (optional)
     public static void main(String[] args) {
-        Percolation percolation = new Percolation(5);
-
-        percolation.open(1, 1);
-        percolation.open(2, 1);
-        percolation.open(3, 1);
-        percolation.open(4, 1);
-        percolation.open(4, 2);
-        percolation.open(4, 3);
-        percolation.open(4, 4);
-        percolation.open(4, 5);
-        percolation.open(5, 3);
-
-
-        System.out.println("Percolates: " + percolation.percolates());
+        Percolation percolation = new Percolation(3);
+        System.out.println(percolation.isFull(1,1));
+        percolation.open(1,1);
+        System.out.println(percolation.isFull(1,1));
+        System.out.println(percolation.isFull(1,1));
     }
 }
