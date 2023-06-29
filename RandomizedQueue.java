@@ -1,7 +1,7 @@
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class Deque<Item> implements Iterable<Item> {
+public class RandomizedQueue<Item> implements Iterable<Item> {
     private Node first;
     private Node last;
     int count = 0;
@@ -31,7 +31,7 @@ public class Deque<Item> implements Iterable<Item> {
     }
 
     // construct an empty deque
-    public Deque() {
+    public RandomizedQueue() {
     }
 
     // is the deque empty?
@@ -44,28 +44,8 @@ public class Deque<Item> implements Iterable<Item> {
         return count;
     }
 
-    // add the item to the front
-    public void addFirst(Item item) {
-        if (item == null) throw new IllegalArgumentException("Item cannot be null");
-
-        Node oldFirst = first;
-
-        Node newNode = new Node();
-        newNode.item = item;
-        newNode.next = oldFirst;
-        newNode.previous = null;
-
-        if (isEmpty()) {
-            last = newNode;
-        }
-
-        first = newNode;
-        count++;
-    }
-
-
     // add the item to the back
-    public void addLast(Item item) {
+    public void enqueue(Item item) {
         if (item == null) throw new IllegalArgumentException("Item cannot be null");
 
         Node newNode = new Node();
@@ -94,17 +74,6 @@ public class Deque<Item> implements Iterable<Item> {
         return oldFirst.item;
     }
 
-    // remove and return the item from the back
-    public Item removeLast() {
-        if (isEmpty()) throw new NoSuchElementException("Deque is already empty");
-
-        Node oldLast = last;
-        last = last.previous;
-        last.next = null;
-        count--;
-        return oldLast.item;
-    }
-
     // return an iterator over items in order from front to back
     public Iterator<Item> iterator() {
         return new DequeIterator();
@@ -112,7 +81,7 @@ public class Deque<Item> implements Iterable<Item> {
 
     // unit testing (required)
     public static void main(String[] args) {
-        Deque<Integer> deque = new Deque<>();
+        RandomizedQueue<Integer> deque = new RandomizedQueue<>();
 
         deque.addFirst(1);
         deque.addFirst(2);
