@@ -125,7 +125,6 @@ public class Deque<Item> implements Iterable<Item> {
         System.out.println(deque.isEmpty());
         System.out.println(deque.size());
 
-
         for (Integer item : deque) {
             System.out.println("Item ->" + item);
         }

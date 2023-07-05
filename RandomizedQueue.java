@@ -1,37 +1,45 @@
+import edu.princeton.cs.algs4.StdRandom;
+
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 public class RandomizedQueue<Item> implements Iterable<Item> {
-    private Node first;
-    private Node last;
-    int count = 0;
+    Item[] items;
+    Integer N = 0;
 
-    private class Node {
-        Item item;
-        Node next;
-        Node previous;
-    }
-
-    public class DequeIterator implements Iterator<Item> {
-        private Node current = first;
+    public class RandomizedQueueIterator implements Iterator<Item> {
+        private final boolean[] alreadyRead = new boolean[N];
+        private int amountOfAlreadyRead = 0;
 
         @Override
         public boolean hasNext() {
-            return current != null;
+            return amountOfAlreadyRead < N;
         }
 
         @Override
         public Item next() {
-            if (current == null) throw new NoSuchElementException("Deque is empty");
+            if (!hasNext()) throw new NoSuchElementException("No more items");
 
-            Item item = current.item;
-            current = current.next;
-            return item;
+            while (true) {
+                int uniformIntegerIndex = StdRandom.uniformInt(0, N);
+
+                if (!alreadyRead[uniformIntegerIndex]) {
+                    alreadyRead[uniformIntegerIndex] = true;
+                    amountOfAlreadyRead++;
+                    return items[uniformIntegerIndex];
+                }
+            }
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException("Remove not implemented");
         }
     }
 
     // construct an empty deque
     public RandomizedQueue() {
+        items = ((Item[]) new Object[1]);
     }
 
     // is the deque empty?
@@ -41,67 +49,66 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
     // return the number of items on the deque
     public int size() {
-        return count;
+        return N;
     }
 
     // add the item to the back
     public void enqueue(Item item) {
-        if (item == null) throw new IllegalArgumentException("Item cannot be null");
+        if (item == null) throw new IllegalArgumentException("Item is null");
+        if (N == items.length) resize(2 * items.length);
+        items[N++] = item;
+    }
 
-        Node newNode = new Node();
-        newNode.item = item;
-        newNode.next = null;
+    public Item dequeue() {
+        Item item = items[--N];
+        items[N] = null;
 
-        if (isEmpty()) {
-            first = newNode;
-            newNode.previous = null;
-        } else {
-            last.next = newNode;
-            newNode.previous = last;
+        if (N > 0 && N == items.length / 4) resize(items.length / 2);
+
+        return item;
+    }
+
+    // return a random item (but do not remove it)
+    public Item sample() {
+        if (isEmpty()) throw new NoSuchElementException("It is empty");
+        return items[StdRandom.uniformInt(0, N)];
+    }
+
+    private void resize(Integer capacity) {
+        Item[] copy = ((Item[]) new Object[capacity]);
+
+        for (int i = 0; i < N; i++) {
+            copy[i] = items[i];
         }
 
-        last = newNode;
-        count++;
+        items = copy;
     }
 
-    // remove and return the item from the front
-    public Item removeFirst() {
-        if (isEmpty()) throw new NoSuchElementException("Deque is already empty");
-
-        Node oldFirst = first;
-        first = first.next;
-        count--;
-        return oldFirst.item;
-    }
 
     // return an iterator over items in order from front to back
     public Iterator<Item> iterator() {
-        return new DequeIterator();
+        return new RandomizedQueueIterator();
     }
 
     // unit testing (required)
     public static void main(String[] args) {
-        RandomizedQueue<Integer> deque = new RandomizedQueue<>();
+        RandomizedQueue<Integer> randomizedQueue = new RandomizedQueue<>();
 
-        deque.addFirst(1);
-        deque.addFirst(2);
-        deque.addLast(3);
-        deque.addLast(4);
+        randomizedQueue.enqueue(10);
+        randomizedQueue.enqueue(20);
+        randomizedQueue.enqueue(30);
 
-        System.out.println(deque.removeFirst());
-        System.out.println(deque.removeLast());
+        System.out.println(randomizedQueue.sample());
 
-        System.out.println(deque.isEmpty());
-        System.out.println(deque.size());
+        Iterator<Integer> iterator = randomizedQueue.iterator();
 
-
-        for (Integer item : deque) {
-            System.out.println("Item ->" + item);
-        }
-
-        Iterator<Integer> iterator = deque.iterator();
-
-        System.out.println(iterator.next());
-        System.out.println(iterator.next());
+//        System.out.println(iterator.hasNext());
+//        System.out.println(iterator.next());
+//        System.out.println(iterator.hasNext());
+//        System.out.println(iterator.next());
+//        System.out.println(iterator.hasNext());
+//        System.out.println(iterator.next());
+//        System.out.println(iterator.hasNext());
+//        System.out.println(iterator.next());
     }
 }

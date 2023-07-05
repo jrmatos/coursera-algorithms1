@@ -1,1 +1,8 @@
-ant bear cat dog emu fox goat horse
+ant
+bear
+cat
+dog
+emu
+fox
+goat
+horse
