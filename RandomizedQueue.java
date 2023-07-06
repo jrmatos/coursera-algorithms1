@@ -4,10 +4,10 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 public class RandomizedQueue<Item> implements Iterable<Item> {
-    Item[] items;
-    Integer N = 0;
+    private Item[] items;
+    private Integer N = 0;
 
-    public class RandomizedQueueIterator implements Iterator<Item> {
+    private class RandomizedQueueIterator implements Iterator<Item> {
         private final boolean[] alreadyRead = new boolean[N];
         private int amountOfAlreadyRead = 0;
 
